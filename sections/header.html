@@ -1,48 +1,46 @@
 <!-- sections/header.html -->
-<header id="header" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 py-3 sm:py-4 px-4 sm:px-8">
-    <nav class="max-w-[1360px] mx-auto flex justify-between items-center">
-        <!-- Brand Logo -->
+<header id="header" class="fixed top-0 left-0 w-full z-50 transition-all duration-500 py-4 sm:py-5 px-4 sm:px-8">
+    <nav class="max-w-[1380px] mx-auto flex items-center justify-between">
+        <!-- Brand Wordmark: DEV. -->
         <a href="#home" class="flex items-center gap-2 group cursor-pointer" aria-label="Home">
-            <div class="w-11 h-11 rounded-full bg-black flex items-center justify-center p-2 shadow-md transition-transform duration-300 group-hover:scale-105 border border-black/10">
-                <img src="images/logo.png" alt="Logo" class="w-full h-full object-contain">
-            </div>
+            <span class="font-cinzel text-xl sm:text-2xl font-bold tracking-[0.25em] text-white group-hover:text-[#c5a059] transition-colors duration-300">
+                DEV<span class="text-[#c5a059] group-hover:text-white transition-colors duration-300">.</span>
+            </span>
+            <span class="hidden sm:inline-block font-mono text-[9px] tracking-[0.35em] text-gray-500 border-l border-white/10 pl-2.5 uppercase">
+                PORTFOLIO
+            </span>
         </a>
 
         <!-- Floating Nav Pill (Desktop) -->
-        <div class="hidden md:flex items-center bg-[#f0f2f5]/90 dark:bg-neutral-900/90 backdrop-blur-md px-1.5 py-1.5 rounded-full border border-gray-200/70 dark:border-white/10 shadow-sm nav-pill">
-            <ul class="flex items-center space-x-1 text-sm font-medium">
+        <div id="desktop-nav-bar" class="hidden md:flex items-center bg-[#0d0d0c]/70 backdrop-blur-md px-2 py-1.5 rounded-full border border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)] nav-pill">
+            <ul class="flex items-center space-x-1 text-xs tracking-[0.18em] font-medium font-sans uppercase">
                 <li>
-                    <a href="#home" class="nav-link nav-tab active-link px-5 py-2 rounded-full font-semibold transition-all duration-300 inline-block bg-[#d4f742] text-black shadow-sm">Home</a>
+                    <a href="#about" class="nav-link nav-tab px-4 py-2 rounded-full text-gray-400 hover:text-white transition-all duration-300 hover:bg-white/[0.06] inline-block">About</a>
                 </li>
                 <li>
-                    <a href="#about" class="nav-link nav-tab px-4 py-2 rounded-full text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition-all duration-300 hover:bg-white/70 dark:hover:bg-white/10 inline-block">About</a>
+                    <a href="#projects" class="nav-link nav-tab px-4 py-2 rounded-full text-gray-400 hover:text-white transition-all duration-300 hover:bg-white/[0.06] inline-block">Projects</a>
                 </li>
                 <li>
-                    <a href="#projects" class="nav-link nav-tab px-4 py-2 rounded-full text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition-all duration-300 hover:bg-white/70 dark:hover:bg-white/10 inline-block">Portfolio</a>
+                    <a href="#qualifications" class="nav-link nav-tab px-4 py-2 rounded-full text-gray-400 hover:text-white transition-all duration-300 hover:bg-white/[0.06] inline-block">Experience</a>
                 </li>
                 <li>
-                    <a href="#skills" class="nav-link nav-tab px-4 py-2 rounded-full text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition-all duration-300 hover:bg-white/70 dark:hover:bg-white/10 inline-block">Skills</a>
+                    <a href="#skills" class="nav-link nav-tab px-4 py-2 rounded-full text-gray-400 hover:text-white transition-all duration-300 hover:bg-white/[0.06] inline-block">Skills</a>
                 </li>
                 <li>
-                    <a href="#contact" class="nav-link nav-tab px-4 py-2 rounded-full text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition-all duration-300 hover:bg-white/70 dark:hover:bg-white/10 inline-block">Contact</a>
+                    <a href="#contact" class="nav-link nav-tab px-4 py-2 rounded-full text-gray-400 hover:text-white transition-all duration-300 hover:bg-white/[0.06] inline-block">Contact</a>
                 </li>
             </ul>
         </div>
 
-        <!-- Right Side: Let's talk & Theme Switcher & Mobile Menu -->
+        <!-- Right Side: Contact CTA & Mobile Hamburger -->
         <div class="flex items-center gap-3">
-            <a href="#contact" class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-300 dark:border-white/20 bg-white/90 dark:bg-neutral-900/80 backdrop-blur-sm text-gray-900 dark:text-white font-medium text-sm transition-all duration-300 hover:bg-black hover:text-white hover:border-black dark:hover:bg-white dark:hover:text-black shadow-sm group">
-                <i data-lucide="message-square" class="w-4 h-4 transition-transform duration-300 group-hover:scale-110"></i>
-                <span>Let's talk</span>
+            <a href="#contact" class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#c5a059]/40 bg-[#c5a059]/10 hover:bg-[#c5a059] text-gray-200 hover:text-black font-mono text-xs uppercase tracking-[0.2em] transition-all duration-300 shadow-sm hover:shadow-[0_0_20px_rgba(197,160,89,0.3)] group">
+                <span>LET'S TALK</span>
+                <span class="group-hover:translate-x-0.5 transition-transform">→</span>
             </a>
 
-            <!-- Theme Toggle Button -->
-            <button id="theme-button" class="w-10 h-10 rounded-full flex items-center justify-center border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition-all duration-200 cursor-pointer" aria-label="Toggle Theme">
-                <i data-lucide="sun" class="w-4 h-4"></i>
-            </button>
-
             <!-- Mobile Hamburger Toggle -->
-            <button id="nav-toggle" class="md:hidden w-10 h-10 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center text-gray-800 dark:text-white transition-transform active:scale-95" aria-label="Open Navigation">
+            <button id="nav-toggle" class="md:hidden w-10 h-10 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-gray-300 hover:text-white transition-transform active:scale-95" aria-label="Open Navigation">
                 <i data-lucide="menu" class="w-5 h-5"></i>
             </button>
         </div>
@@ -50,32 +48,31 @@
 </header>
 
 <!-- Mobile Navigation Backdrop Overlay -->
-<div id="mobile-menu-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300 md:hidden" aria-hidden="true"></div>
+<div id="mobile-menu-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-md z-40 hidden opacity-0 transition-opacity duration-300 md:hidden" aria-hidden="true"></div>
 
 <!-- Mobile Navigation Drawer -->
-<div id="mobile-menu" class="fixed top-0 -right-full w-4/5 max-w-sm h-full bg-white/95 dark:bg-[#0c0d0c]/95 backdrop-blur-xl z-50 transition-all duration-300 shadow-2xl p-6 flex flex-col justify-between md:hidden">
+<div id="mobile-menu" class="fixed top-0 -right-full w-4/5 max-w-sm h-full bg-[#0a0a09]/95 backdrop-blur-xl border-l border-white/10 z-50 transition-all duration-300 shadow-2xl p-6 sm:p-8 flex flex-col justify-between md:hidden">
     <div>
-        <div class="flex items-center justify-between pb-6 border-b border-gray-100 dark:border-neutral-800">
-            <div class="flex items-center gap-3">
-                <img src="images/logo.png" alt="Logo" class="w-9 h-9 rounded-full bg-black p-1.5">
-                <span class="font-bold text-lg font-display">Deven</span>
+        <div class="flex items-center justify-between pb-6 border-b border-white/10">
+            <div class="flex items-center gap-2">
+                <span class="font-cinzel text-xl font-bold tracking-[0.25em] text-white">DEV<span class="text-[#c5a059]">.</span></span>
             </div>
-            <button id="nav-close" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors" aria-label="Close Navigation">
+            <button id="nav-close" class="p-2 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors" aria-label="Close Navigation">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
         </div>
-        <ul class="flex flex-col space-y-2 mt-6 text-base font-medium">
-            <li><a href="#home" class="nav-link block px-4 py-3 rounded-xl bg-[#d4f742] text-black font-semibold">Home</a></li>
-            <li><a href="#about" class="nav-link block px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">About</a></li>
-            <li><a href="#projects" class="nav-link block px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">Portfolio</a></li>
-            <li><a href="#skills" class="nav-link block px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">Skills</a></li>
-            <li><a href="#contact" class="nav-link block px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">Contact</a></li>
+        <ul class="flex flex-col space-y-3 mt-8 text-sm uppercase tracking-[0.22em] font-sans">
+            <li><a href="#about" class="nav-link block px-4 py-3 rounded-xl text-gray-300 hover:text-[#c5a059] hover:bg-white/[0.04] transition-colors"><span class="text-xs text-[#c5a059]/60 font-mono mr-2">01</span> About</a></li>
+            <li><a href="#projects" class="nav-link block px-4 py-3 rounded-xl text-gray-300 hover:text-[#c5a059] hover:bg-white/[0.04] transition-colors"><span class="text-xs text-[#c5a059]/60 font-mono mr-2">02</span> Projects</a></li>
+            <li><a href="#qualifications" class="nav-link block px-4 py-3 rounded-xl text-gray-300 hover:text-[#c5a059] hover:bg-white/[0.04] transition-colors"><span class="text-xs text-[#c5a059]/60 font-mono mr-2">03</span> Experience</a></li>
+            <li><a href="#skills" class="nav-link block px-4 py-3 rounded-xl text-gray-300 hover:text-[#c5a059] hover:bg-white/[0.04] transition-colors"><span class="text-xs text-[#c5a059]/60 font-mono mr-2">04</span> Skills</a></li>
+            <li><a href="#contact" class="nav-link block px-4 py-3 rounded-xl text-gray-300 hover:text-[#c5a059] hover:bg-white/[0.04] transition-colors"><span class="text-xs text-[#c5a059]/60 font-mono mr-2">05</span> Contact</a></li>
         </ul>
     </div>
-    <div class="pt-6 border-t border-gray-100 dark:border-neutral-800">
-        <a href="#contact" class="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-full bg-black text-white dark:bg-white dark:text-black font-medium transition-transform active:scale-95">
-            <i data-lucide="message-square" class="w-4 h-4"></i>
-            <span>Let's talk</span>
+    <div class="pt-6 border-t border-white/10">
+        <a href="#contact" class="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-full bg-[#c5a059] text-black font-semibold tracking-wider text-xs uppercase transition-transform active:scale-95 shadow-[0_0_20px_rgba(197,160,89,0.3)]">
+            <span>LET'S TALK</span>
+            <span>→</span>
         </a>
     </div>
 </div>
