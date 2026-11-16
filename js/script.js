@@ -267,134 +267,340 @@ function initializePortfolio() {
     // Start entrance animations behind splash so everything is settled and ready
     initGSAPAnimations();
 
-    /*=============== CINEMATIC SPLASH SCREEN & PRELOADER ===============*/
-    initCinematicSplashScreen();
+    /*=============== CINEMATIC MOVIE INTRO — CHAPTER ZERO ===============*/
+    initCinematicOpeningIntro();
 }
 
-/*=============== CINEMATIC COUNTDOWN SPLASH SCREEN & PRELOADER ===============*/
-function initCinematicSplashScreen(onCompleteCallback) {
-    const splash = document.getElementById('cinema-splash');
-    if (!splash) {
-        if (onCompleteCallback) onCompleteCallback();
+/*=============== CINEMATIC MOVIE INTRO — CHAPTER ZERO ===============*/
+function initCinematicOpeningIntro() {
+    const introRoot = document.getElementById('cinematic-intro');
+    if (!introRoot) return;
+
+    const skipBtn = document.getElementById('skip-intro-btn');
+    const dustCanvas = document.getElementById('intro-dust-canvas');
+    const chapterTag = document.getElementById('intro-chapter-tag');
+    const statementAct = document.getElementById('intro-statement-act');
+    const heroAct = document.getElementById('intro-hero-act');
+    const taglineAct = document.getElementById('intro-tagline-act');
+    const titleShimmer = document.querySelector('.intro-title-shimmer');
+    const heroDivider = document.querySelector('.intro-hero-divider');
+
+    // 1. Session Storage Guard: Avoid replaying in the same session unless ?intro= is passed in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const forceIntro = urlParams.has('intro');
+    const hasSeenIntro = sessionStorage.getItem('deven_intro_seen');
+
+    // 2. Prefers Reduced Motion Guard
+    const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if ((hasSeenIntro && !forceIntro) || prefersReducedMotion) {
+        introRoot.style.display = 'none';
+        introRoot.setAttribute('aria-hidden', 'true');
         return;
     }
 
-    const numEl = document.getElementById('splash-countdown-number');
-    const subEl = document.getElementById('splash-countdown-sub');
-    const timecodeEl = document.getElementById('splash-timecode');
-    const statusEl = document.getElementById('splash-status-text');
-    const percentEl = document.getElementById('splash-percent-text');
-    const progressBar = document.getElementById('splash-progress-bar');
-    const radarArm = document.getElementById('splash-radar-arm');
-    const skipBtn = document.getElementById('skip-splash-btn');
-
-    let isDismissed = false;
-    let radarAnimId;
-
-    // Preload critical assets in the background during countdown
+    // Preload critical homepage assets silently in parallel
     const criticalAssets = [
         'images/hero-clean.png',
         'images/contact-clouds.jpg',
         'images/about-me.jpg',
         'images/logo.png',
         'images/projects/website-builder.png',
-        'images/projects/medlookup.png',
-        'images/projects/finey-mobile.png',
-        'images/projects/skippr.png',
-        'images/projects/chat-webapp.png',
-        'images/projects/story-buddy.png'
+        'images/projects/medlookup.png'
     ];
-
     criticalAssets.forEach(src => {
         const img = new Image();
         img.src = src;
     });
 
-    // Dismiss with cinematic film dissolve
-    const dismissSplash = () => {
-        if (isDismissed) return;
-        isDismissed = true;
-        if (radarAnimId) cancelAnimationFrame(radarAnimId);
+    let isDismissed = false;
+    let dustAnimFrameId = null;
+    let masterTimeline = null;
+    let safetyTimeoutId = null;
 
-        splash.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
-        splash.style.opacity = '0';
-        splash.style.transform = 'scale(1.05)';
-        splash.style.pointerEvents = 'none';
+    // ----------------------------------------------------
+    // DUST PARTICLES ENGINE (Subtle, Atmospheric Film Dust)
+    // ----------------------------------------------------
+    function initDustSimulation() {
+        if (!dustCanvas) return null;
+        const ctx = dustCanvas.getContext('2d');
+        if (!ctx) return null;
 
-        if (onCompleteCallback) {
-            onCompleteCallback();
+        let width = (dustCanvas.width = window.innerWidth);
+        let height = (dustCanvas.height = window.innerHeight);
+
+        const handleResize = () => {
+            if (isDismissed || !dustCanvas) return;
+            width = dustCanvas.width = window.innerWidth;
+            height = dustCanvas.height = window.innerHeight;
+        };
+        window.addEventListener('resize', handleResize);
+
+        const particleCount = window.innerWidth < 640 ? 22 : 45;
+        const particles = [];
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 1.5 + 0.6,
+                baseAlpha: Math.random() * 0.35 + 0.15,
+                alpha: 0.2,
+                vx: (Math.random() - 0.5) * 0.25,
+                vy: -(Math.random() * 0.35 + 0.12), // gentle upward float
+                phase: Math.random() * Math.PI * 2,
+                phaseSpeed: Math.random() * 0.02 + 0.01
+            });
         }
 
-        setTimeout(() => {
-            splash.style.display = 'none';
-            if (window.ScrollTrigger) ScrollTrigger.refresh();
-        }, 650);
-    };
+        function renderDust() {
+            if (isDismissed) return;
+            ctx.clearRect(0, 0, width, height);
 
-    if (skipBtn) {
-        skipBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            dismissSplash();
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                p.phase += p.phaseSpeed;
+                p.alpha = p.baseAlpha + Math.sin(p.phase) * 0.12;
+                if (p.alpha < 0.05) p.alpha = 0.05;
+
+                p.x += p.vx + Math.sin(p.phase * 0.5) * 0.15;
+                p.y += p.vy;
+
+                // Wrap-around screen bounds
+                if (p.y < -10) {
+                    p.y = height + 10;
+                    p.x = Math.random() * width;
+                }
+                if (p.x < -10) p.x = width + 10;
+                if (p.x > width + 10) p.x = -10;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(235, 220, 190, ${p.alpha})`;
+                ctx.shadowBlur = 4;
+                ctx.shadowColor = 'rgba(197, 160, 89, 0.4)';
+                ctx.fill();
+            }
+
+            dustAnimFrameId = requestAnimationFrame(renderDust);
+        }
+
+        renderDust();
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            if (dustAnimFrameId) cancelAnimationFrame(dustAnimFrameId);
+        };
+    }
+
+    const cleanupDust = initDustSimulation();
+
+    // ----------------------------------------------------
+    // CLEANUP & DISMISS TO PORTFOLIO
+    // ----------------------------------------------------
+    function dismissIntro(immediate = false) {
+        if (isDismissed) return;
+        isDismissed = true;
+
+        if (safetyTimeoutId) clearTimeout(safetyTimeoutId);
+        if (cleanupDust) cleanupDust();
+
+        sessionStorage.setItem('deven_intro_seen', 'true');
+
+        if (masterTimeline) {
+            masterTimeline.kill();
+        }
+
+        if (immediate || !window.gsap) {
+            introRoot.style.opacity = '0';
+            introRoot.style.display = 'none';
+            introRoot.setAttribute('aria-hidden', 'true');
+            if (window.ScrollTrigger) ScrollTrigger.refresh();
+            return;
+        }
+
+        // Cinematic exit transition: smooth expanding camera zoom & dissolve into homepage
+        gsap.to(introRoot, {
+            opacity: 0,
+            scale: 1.04,
+            filter: 'blur(6px)',
+            duration: 0.85,
+            ease: 'power2.inOut',
+            onComplete: () => {
+                introRoot.style.display = 'none';
+                introRoot.setAttribute('aria-hidden', 'true');
+                if (window.ScrollTrigger) ScrollTrigger.refresh();
+            }
         });
     }
 
-    // Rotating film radar sweep arm
-    let angle = 0;
-    const rotateRadar = () => {
-        if (isDismissed) return;
-        angle = (angle + 5.5) % 360;
-        if (radarArm) radarArm.style.transform = `rotate(${angle}deg)`;
-        radarAnimId = requestAnimationFrame(rotateRadar);
-    };
-    radarAnimId = requestAnimationFrame(rotateRadar);
+    // Skip Intro button listener
+    if (skipBtn) {
+        skipBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            dismissIntro(false);
+        });
+    }
 
-    // Movie Countdown Stages: 3 -> 2 -> 1 -> START
-    const stages = [
-        { num: '3', sub: 'INITIALIZING ASSETS', tc: '00:00:03', status: 'PRE-FETCHING ENGINE & TEXTURES...', pct: 28 },
-        { num: '2', sub: 'SYNCING GRAPHICS',   tc: '00:00:02', status: 'OPTIMIZING 60FPS COMPOSITOR...', pct: 65 },
-        { num: '1', sub: 'READY FOR PREMIERE', tc: '00:00:01', status: 'INITIALIZING PORTFOLIO STAGE...', pct: 95 },
-        { num: 'START', sub: 'ACTION',         tc: '00:00:00', status: 'PREMIERE READY • ENJOY', pct: 100 }
-    ];
+    // Fallback safety timeout: guarantee entrance to portfolio after 9.5s
+    safetyTimeoutId = setTimeout(() => {
+        dismissIntro(false);
+    }, 9500);
 
-    let stageIndex = 0;
+    // ----------------------------------------------------
+    // GSAP 8-SECOND CINEMATIC MASTER TIMELINE
+    // ----------------------------------------------------
+    if (!window.gsap) {
+        // Fallback if GSAP is blocked or unavailable
+        setTimeout(() => dismissIntro(false), 3000);
+        return;
+    }
 
-    const runStage = () => {
-        if (isDismissed) return;
-
-        const current = stages[stageIndex];
-
-        if (numEl) {
-            numEl.style.transform = 'scale(1.22)';
-            numEl.style.opacity = '0.35';
-            setTimeout(() => {
-                if (isDismissed) return;
-                numEl.textContent = current.num;
-                numEl.style.transform = 'scale(1)';
-                numEl.style.opacity = '1';
-                if (current.num === 'START') {
-                    numEl.style.color = '#d4f742';
-                    numEl.style.fontSize = 'clamp(3.5rem, 12vw, 6.5rem)';
-                }
-            }, 75);
+    masterTimeline = gsap.timeline({
+        onComplete: () => {
+            dismissIntro(false);
         }
+    });
 
-        if (subEl) subEl.textContent = current.sub;
-        if (timecodeEl) timecodeEl.textContent = current.tc;
-        if (statusEl) statusEl.textContent = current.status;
-        if (percentEl) percentEl.textContent = `${current.pct}%`;
-        if (progressBar) progressBar.style.width = `${current.pct}%`;
+    // Initial setup: ensure all acts are hidden
+    gsap.set([statementAct, heroAct, taglineAct], { opacity: 0 });
+    gsap.set(skipBtn, { opacity: 0 });
+    gsap.set(chapterTag, { opacity: 0, y: -8 });
 
-        stageIndex++;
+    // Fade in subtle "SKIP INTRO →" button after 0.8s
+    masterTimeline.to(skipBtn, {
+        opacity: 0.75,
+        duration: 1.0,
+        ease: 'power1.out'
+    }, 0.8);
 
-        if (stageIndex < stages.length) {
-            setTimeout(runStage, 620);
-        } else {
-            // Held at START for 350ms, then reveal site
-            setTimeout(dismissSplash, 420);
-        }
-    };
+    // === ACT 0 (0–2s): Atmospheric movie opening & Chapter Tag ===
+    masterTimeline.to(chapterTag, {
+        opacity: 0.75,
+        y: 0,
+        duration: 1.4,
+        ease: 'power2.out'
+    }, 0.4);
 
-    setTimeout(runStage, 150);
+    // === ACT 1 (2–4s): "EVERYTHING STARTS WITH AN IDEA" ===
+    const statementText = document.querySelector('.intro-statement-text');
+    masterTimeline.set(statementAct, { opacity: 1, pointerEvents: 'auto' }, 2.0);
+
+    masterTimeline.fromTo(statementText, 
+        {
+            opacity: 0,
+            filter: 'blur(12px)',
+            letterSpacing: '0.15em',
+            scale: 0.96
+        },
+        {
+            opacity: 1,
+            filter: 'blur(0px)',
+            letterSpacing: '0.30em',
+            scale: 1.02,
+            duration: 0.85,
+            ease: 'power2.out'
+        },
+        2.0
+    );
+
+    // Fade out Act 1 smoothly
+    masterTimeline.to(statementText, {
+        opacity: 0,
+        filter: 'blur(8px)',
+        scale: 1.05,
+        duration: 0.5,
+        ease: 'power2.in'
+    }, 3.5);
+
+    masterTimeline.set(statementAct, { opacity: 0, pointerEvents: 'none' }, 4.0);
+
+    // === ACT 2 (4–6s): "DEVEN RAJPUT" — The Hero Moment ===
+    const heroWrapper = document.querySelector('.intro-hero-wrapper');
+    const heroPretitle = document.querySelector('.intro-hero-pretitle');
+    const heroTitle = document.querySelector('.intro-hero-title');
+
+    masterTimeline.set(heroAct, { opacity: 1, pointerEvents: 'auto' }, 4.0);
+
+    // Camera slow push-in zoom on hero title
+    masterTimeline.fromTo(heroWrapper,
+        { scale: 0.94 },
+        { scale: 1.03, duration: 1.9, ease: 'sine.out' },
+        4.0
+    );
+
+    // Pretitle: A DIGITAL EXPERIENCE BY
+    masterTimeline.fromTo(heroPretitle,
+        { opacity: 0, y: -6 },
+        { opacity: 0.85, y: 0, duration: 0.7, ease: 'power2.out' },
+        4.05
+    );
+
+    // Hero title blur to focus (fast to crystal sharpness, held in spotlight)
+    masterTimeline.fromTo(heroTitle,
+        { opacity: 0, filter: 'blur(14px)' },
+        { opacity: 1, filter: 'blur(0px)', duration: 0.8, ease: 'power2.out' },
+        4.1
+    );
+
+    // Cinematic light sweep across "DEVEN RAJPUT"
+    if (titleShimmer) {
+        masterTimeline.fromTo(titleShimmer,
+            { backgroundPosition: '130% 0' },
+            { backgroundPosition: '-30% 0', duration: 1.7, ease: 'power1.inOut' },
+            4.15
+        );
+    }
+
+    // Gold accent line expands under title
+    if (heroDivider) {
+        masterTimeline.fromTo(heroDivider,
+            { width: '0px' },
+            { width: '120px', duration: 0.85, ease: 'power2.out' },
+            4.35
+        );
+    }
+
+    // Fade out Act 2 smoothly
+    masterTimeline.to(heroWrapper, {
+        opacity: 0,
+        filter: 'blur(8px)',
+        duration: 0.5,
+        ease: 'power2.in'
+    }, 5.5);
+
+    masterTimeline.set(heroAct, { opacity: 0, pointerEvents: 'none' }, 6.0);
+
+    // === ACT 3 (6–8s): The Taglines ===
+    const taglineWrapper = document.querySelector('.intro-tagline-wrapper');
+    const taglineHeadline = document.querySelector('.intro-tagline-headline');
+    const taglineSubheadline = document.querySelector('.intro-tagline-subheadline');
+
+    masterTimeline.set(taglineAct, { opacity: 1, pointerEvents: 'auto' }, 6.05);
+
+    // Gentle upward motion and blur-to-focus on main tagline
+    masterTimeline.fromTo(taglineHeadline,
+        { opacity: 0, y: 20, filter: 'blur(8px)' },
+        { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.85, ease: 'power2.out' },
+        6.1
+    );
+
+    // Subheadline: FULL STACK DEVELOPER • APP DEVELOPER • AI ENTHUSIAST
+    masterTimeline.fromTo(taglineSubheadline,
+        { opacity: 0, y: 14 },
+        { opacity: 0.92, y: 0, duration: 0.8, ease: 'power2.out' },
+        6.35
+    );
+
+    // Gentle camera drift
+    masterTimeline.fromTo(taglineWrapper,
+        { scale: 0.98 },
+        { scale: 1.015, duration: 1.85, ease: 'sine.out' },
+        6.1
+    );
+
+    // === AT 8.0s: Reveal Portfolio Homepage ===
+    // Timeline finishes at 8.0s and calls onComplete: dismissIntro()
 }
 
 function initGSAPAnimations() {

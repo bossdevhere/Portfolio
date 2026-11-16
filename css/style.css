@@ -381,7 +381,351 @@ html.dark .card:hover {
     backface-visibility: hidden;
 }
 
-/* Splash screen countdown number pop */
-#splash-countdown-number {
-    text-shadow: 0 0 30px rgba(212, 247, 66, 0.4), 0 0 60px rgba(212, 247, 66, 0.2);
+/* ========================================================
+   CINEMATIC MOVIE INTRO — CHAPTER ZERO
+   ======================================================== */
+.cinematic-intro-root {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    background-color: #050505;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+    contain: strict;
+    will-change: opacity, transform, filter;
+}
+
+/* Subtle Anamorphic Letterbox Bars for widescreen movie feel */
+.intro-letterbox-bar {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 32px;
+    background: #000000;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.intro-letterbox-top {
+    top: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.intro-letterbox-bottom {
+    bottom: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+@media (max-width: 640px) {
+    .intro-letterbox-bar {
+        height: 20px;
+    }
+}
+
+/* Film grain texture */
+.intro-grain-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0.18;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+}
+
+/* Cinematic Vignette */
+.intro-vignette-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3;
+    background: radial-gradient(ellipse at 50% 50%, rgba(5, 5, 5, 0) 30%, rgba(5, 5, 5, 0.5) 70%, rgba(5, 5, 5, 0.98) 100%);
+}
+
+/* Ambient Spotlight Glow in Center */
+.intro-center-spotlight {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 850px;
+    max-width: 90vw;
+    height: 500px;
+    max-height: 80vh;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(197, 160, 89, 0.08) 0%, rgba(255, 255, 255, 0.02) 40%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+    filter: blur(50px);
+}
+
+/* Floating Cinematic Dust Particles Canvas */
+.intro-dust-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 4;
+}
+
+/* Cinematic Header: Chapter Zero Tag */
+.intro-chapter-tag {
+    position: absolute;
+    top: 2.4rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10.5px;
+    letter-spacing: 0.35em;
+    font-weight: 500;
+    color: rgba(220, 220, 220, 0.55);
+    text-transform: uppercase;
+    z-index: 15;
+    pointer-events: none;
+    white-space: nowrap;
+    opacity: 0;
+}
+
+.intro-chapter-badge {
+    color: #c5a059;
+    font-weight: 600;
+    letter-spacing: 0.4em;
+}
+
+.intro-chapter-sep {
+    color: rgba(255, 255, 255, 0.25);
+    font-weight: 300;
+}
+
+.intro-chapter-phrase {
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.3em;
+}
+
+@media (max-width: 640px) {
+    .intro-chapter-tag {
+        top: 1.6rem;
+        font-size: 8.5px;
+        gap: 0.4rem;
+        letter-spacing: 0.22em;
+    }
+    .intro-chapter-badge {
+        letter-spacing: 0.25em;
+    }
+    .intro-chapter-phrase {
+        letter-spacing: 0.18em;
+    }
+}
+
+/* Center Stage Area */
+.intro-center-stage {
+    position: relative;
+    z-index: 12;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 1200px;
+    min-height: 280px;
+    padding: 0 1.5rem;
+    text-align: center;
+}
+
+/* Narrative Acts */
+.intro-act-container {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    width: 100%;
+}
+
+/* Act I: The First Statement */
+.intro-statement-text {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(1.15rem, 3.4vw, 2.35rem);
+    font-weight: 300;
+    letter-spacing: 0.24em;
+    color: #f0f0f0;
+    text-transform: uppercase;
+    line-height: 1.4;
+    text-shadow: 0 0 35px rgba(255, 255, 255, 0.22);
+    margin: 0;
+    padding: 0 1rem;
+    will-change: letter-spacing, opacity, filter, transform;
+}
+
+/* Act II: The Main Hero Title */
+.intro-hero-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    will-change: transform, opacity, filter;
+}
+
+.intro-hero-pretitle {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(0.65rem, 1.4vw, 0.85rem);
+    font-weight: 500;
+    letter-spacing: 0.45em;
+    color: rgba(197, 160, 89, 0.85);
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+    margin-top: 0;
+}
+
+.intro-hero-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2.4rem, 7.6vw, 6.2rem);
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    line-height: 1.1;
+    margin: 0;
+    padding: 0 0.5rem;
+}
+
+/* Muted Gold & White Shimmer Light Sweep across Title */
+.intro-title-shimmer {
+    background: linear-gradient(110deg, #c5a059 0%, #ffffff 32%, #fff4d1 50%, #ffffff 68%, #a8833e 100%);
+    background-size: 260% 100%;
+    background-position: 130% 0;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 30px rgba(197, 160, 89, 0.3));
+    will-change: background-position;
+}
+
+.intro-hero-divider {
+    width: 0px;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, #c5a059, #ffffff, #c5a059, transparent);
+    margin-top: 1.25rem;
+    opacity: 0.85;
+    box-shadow: 0 0 12px rgba(197, 160, 89, 0.5);
+}
+
+/* Act III: The Taglines */
+.intro-tagline-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    will-change: transform, opacity, filter;
+}
+
+.intro-tagline-headline {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.05rem, 2.8vw, 1.95rem);
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    color: #f7f7f7;
+    text-transform: uppercase;
+    line-height: 1.35;
+    margin: 0 0 0.85rem 0;
+    padding: 0 1rem;
+    text-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+}
+
+.intro-tagline-subheadline {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(0.66rem, 1.45vw, 0.92rem);
+    font-weight: 400;
+    letter-spacing: 0.28em;
+    color: rgba(197, 160, 89, 0.92);
+    text-transform: uppercase;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 0 1rem;
+}
+
+.intro-dot {
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 0.75em;
+    user-select: none;
+}
+
+@media (max-width: 640px) {
+    .intro-hero-title {
+        letter-spacing: 0.12em;
+    }
+    .intro-tagline-subheadline {
+        letter-spacing: 0.18em;
+        gap: 0.35rem;
+    }
+}
+
+/* Elegant SKIP INTRO Button (Bottom Right) */
+.intro-skip-btn {
+    position: absolute;
+    bottom: 2.2rem;
+    right: 2.4rem;
+    z-index: 25;
+    background: rgba(15, 15, 15, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 9999px;
+    padding: 0.5rem 1.15rem;
+    color: rgba(255, 255, 255, 0.62);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    outline: none;
+}
+
+.intro-skip-btn:hover {
+    border-color: rgba(197, 160, 89, 0.65);
+    color: #ffffff;
+    background: rgba(22, 22, 22, 0.9);
+    box-shadow: 0 0 20px rgba(197, 160, 89, 0.25);
+}
+
+.intro-skip-btn:hover .intro-skip-icon {
+    transform: translateX(3px);
+}
+
+.intro-skip-icon {
+    transition: transform 0.25s ease;
+    font-size: 13px;
+    line-height: 1;
+}
+
+@media (max-width: 640px) {
+    .intro-skip-btn {
+        bottom: 1.4rem;
+        right: 1.4rem;
+        padding: 0.4rem 0.9rem;
+        font-size: 9.5px;
+        letter-spacing: 0.18em;
+    }
 }
