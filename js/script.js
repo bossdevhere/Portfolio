@@ -261,50 +261,49 @@ function initializePortfolio() {
     /*=============== CONTACT SECTION INTERACTION ===============*/
     initContactInteractions();
 
-    /*=============== PRELOAD & INITIALIZE ENTRANCE ANIMATIONS ===============*/
-    // Start entrance animations behind splash so everything is settled and ready
-    initGSAPAnimations();
-
-    /*=============== CINEMATIC MOVIE INTRO — CHAPTER ZERO ===============*/
+    /*=============== CINEMATIC SPLASH SCREEN ===============*/
     initCinematicOpeningIntro();
 }
 
-/*=============== CINEMATIC MOVIE INTRO — CHAPTER ZERO ===============*/
+/*=============== MODERN & ATTRACTIVE SPLASH SCREEN ===============*/
 function initCinematicOpeningIntro() {
     const introRoot = document.getElementById('cinematic-intro');
-    if (!introRoot) return;
-
-    const skipBtn = document.getElementById('skip-intro-btn');
-    const dustCanvas = document.getElementById('intro-dust-canvas');
-    const chapterTag = document.getElementById('intro-chapter-tag');
-    const statementAct = document.getElementById('intro-statement-act');
-    const heroAct = document.getElementById('intro-hero-act');
-    const taglineAct = document.getElementById('intro-tagline-act');
-    const titleShimmer = document.querySelector('.intro-title-shimmer');
-    const heroDivider = document.querySelector('.intro-hero-divider');
-
-    // 1. Session Storage Guard: Avoid replaying in the same session unless ?intro= is passed in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const forceIntro = urlParams.has('intro');
-    const hasSeenIntro = sessionStorage.getItem('deven_intro_seen');
-
-    // 2. Prefers Reduced Motion Guard
-    const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    if ((hasSeenIntro && !forceIntro) || prefersReducedMotion) {
-        introRoot.style.display = 'none';
-        introRoot.setAttribute('aria-hidden', 'true');
+    if (!introRoot) {
+        initGSAPAnimations();
         return;
     }
 
-    // Preload critical homepage assets silently in parallel
+    const skipBtn = document.getElementById('skip-intro-btn');
+    const counterEl = document.getElementById('splash-counter');
+    const statusTextEl = document.getElementById('splash-status-text');
+    const progressBar = document.getElementById('splash-progress-bar');
+    const circleBar = document.getElementById('splash-progress-circle');
+    const centerContent = document.querySelector('.splash-center-content');
+    const monogramWrap = document.querySelector('.splash-emblem-wrap');
+    const nameEl = document.querySelector('.splash-name');
+    const taglineEl = document.querySelector('.splash-tagline');
+    const progressContainer = document.querySelector('.splash-progress-container');
+
+    // 1. Session Storage & Dev environment check
+    const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const urlParams = new URLSearchParams(window.location.search);
+    const forceIntro = urlParams.has('intro');
+    const hasSeenIntro = sessionStorage.getItem('deven_intro_seen');
+    const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // In production, avoid replay in same session; in localhost/dev, allow viewing on refresh
+    if ((hasSeenIntro && !forceIntro && !isDev) || prefersReducedMotion) {
+        introRoot.style.display = 'none';
+        introRoot.setAttribute('aria-hidden', 'true');
+        initGSAPAnimations();
+        return;
+    }
+
+    // Preload critical homepage images in background
     const criticalAssets = [
         'images/hero-clean.png',
-        'images/contact-clouds.jpg',
         'images/about-me.jpg',
-        'images/logo.png',
-        'images/projects/website-builder.png',
-        'images/projects/medlookup.png'
+        'images/contact-clouds.jpg'
     ];
     criticalAssets.forEach(src => {
         const img = new Image();
@@ -312,297 +311,160 @@ function initCinematicOpeningIntro() {
     });
 
     let isDismissed = false;
-    let dustAnimFrameId = null;
     let masterTimeline = null;
     let safetyTimeoutId = null;
 
     // ----------------------------------------------------
-    // DUST PARTICLES ENGINE (Subtle, Atmospheric Film Dust)
+    // CLEANUP & REVEAL PORTFOLIO (Curtain Lift)
     // ----------------------------------------------------
-    function initDustSimulation() {
-        if (!dustCanvas) return null;
-        const ctx = dustCanvas.getContext('2d');
-        if (!ctx) return null;
-
-        let width = (dustCanvas.width = window.innerWidth);
-        let height = (dustCanvas.height = window.innerHeight);
-
-        const handleResize = () => {
-            if (isDismissed || !dustCanvas) return;
-            width = dustCanvas.width = window.innerWidth;
-            height = dustCanvas.height = window.innerHeight;
-        };
-        window.addEventListener('resize', handleResize);
-
-        const particleCount = window.innerWidth < 640 ? 22 : 45;
-        const particles = [];
-
-        for (let i = 0; i < particleCount; i++) {
-            particles.push({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                radius: Math.random() * 1.5 + 0.6,
-                baseAlpha: Math.random() * 0.35 + 0.15,
-                alpha: 0.2,
-                vx: (Math.random() - 0.5) * 0.25,
-                vy: -(Math.random() * 0.35 + 0.12), // gentle upward float
-                phase: Math.random() * Math.PI * 2,
-                phaseSpeed: Math.random() * 0.02 + 0.01
-            });
-        }
-
-        function renderDust() {
-            if (isDismissed) return;
-            ctx.clearRect(0, 0, width, height);
-
-            for (let i = 0; i < particles.length; i++) {
-                const p = particles[i];
-                p.phase += p.phaseSpeed;
-                p.alpha = p.baseAlpha + Math.sin(p.phase) * 0.12;
-                if (p.alpha < 0.05) p.alpha = 0.05;
-
-                p.x += p.vx + Math.sin(p.phase * 0.5) * 0.15;
-                p.y += p.vy;
-
-                // Wrap-around screen bounds
-                if (p.y < -10) {
-                    p.y = height + 10;
-                    p.x = Math.random() * width;
-                }
-                if (p.x < -10) p.x = width + 10;
-                if (p.x > width + 10) p.x = -10;
-
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(235, 220, 190, ${p.alpha})`;
-                ctx.shadowBlur = 4;
-                ctx.shadowColor = 'rgba(197, 160, 89, 0.4)';
-                ctx.fill();
-            }
-
-            dustAnimFrameId = requestAnimationFrame(renderDust);
-        }
-
-        renderDust();
-
-        return () => {
-            window.removeEventListener('resize', handleResize);
-            if (dustAnimFrameId) cancelAnimationFrame(dustAnimFrameId);
-        };
-    }
-
-    const cleanupDust = initDustSimulation();
-
-    // ----------------------------------------------------
-    // CLEANUP & DISMISS TO PORTFOLIO
-    // ----------------------------------------------------
-    function dismissIntro(immediate = false) {
+    function dismissSplash(immediate = false) {
         if (isDismissed) return;
         isDismissed = true;
 
         if (safetyTimeoutId) clearTimeout(safetyTimeoutId);
-        if (cleanupDust) cleanupDust();
-
         sessionStorage.setItem('deven_intro_seen', 'true');
 
-        if (masterTimeline) {
-            masterTimeline.kill();
-        }
+        if (masterTimeline) masterTimeline.kill();
 
         if (immediate || !window.gsap) {
             introRoot.style.opacity = '0';
             introRoot.style.display = 'none';
             introRoot.setAttribute('aria-hidden', 'true');
+            initGSAPAnimations();
             if (window.ScrollTrigger) ScrollTrigger.refresh();
             return;
         }
 
-        // Cinematic exit transition: smooth expanding camera zoom & dissolve into homepage
-        gsap.to(introRoot, {
-            opacity: 0,
-            scale: 1.04,
-            filter: 'blur(6px)',
-            duration: 0.85,
-            ease: 'power2.inOut',
+        // Luxury curtain lift exit transition
+        const exitTl = gsap.timeline({
             onComplete: () => {
                 introRoot.style.display = 'none';
                 introRoot.setAttribute('aria-hidden', 'true');
                 if (window.ScrollTrigger) ScrollTrigger.refresh();
             }
         });
+
+        // Content scales slightly and dissolves softly
+        exitTl.to(centerContent, {
+            opacity: 0,
+            y: -22,
+            scale: 0.96,
+            duration: 0.32,
+            ease: 'power2.in'
+        })
+        // Black backdrop lifts like an upscale theater curtain
+        .to(introRoot, {
+            yPercent: -100,
+            duration: 0.75,
+            ease: 'expo.inOut',
+            onStart: () => {
+                // Trigger hero entrance synchronously as curtain rises
+                initGSAPAnimations();
+            }
+        }, "-=0.12");
     }
 
-    // Skip Intro button listener
+    // Interaction triggers: Skip button, click anywhere, or press Enter/Space/Escape
     if (skipBtn) {
         skipBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            dismissIntro(false);
+            e.stopPropagation();
+            dismissSplash(false);
         });
     }
 
-    // Fallback safety timeout: guarantee entrance to portfolio after 9.5s
-    safetyTimeoutId = setTimeout(() => {
-        dismissIntro(false);
-    }, 9500);
+    introRoot.addEventListener('click', () => {
+        dismissSplash(false);
+    });
 
-    // ----------------------------------------------------
-    // GSAP 8-SECOND CINEMATIC MASTER TIMELINE
-    // ----------------------------------------------------
+    const keyListener = (e) => {
+        if (!isDismissed && (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter')) {
+            dismissSplash(false);
+            window.removeEventListener('keydown', keyListener);
+        }
+    };
+    window.addEventListener('keydown', keyListener);
+
+    // Safety timeout: guarantee portfolio access after 3.8s
+    safetyTimeoutId = setTimeout(() => {
+        dismissSplash(false);
+    }, 3800);
+
     if (!window.gsap) {
-        // Fallback if GSAP is blocked or unavailable
-        setTimeout(() => dismissIntro(false), 3000);
+        setTimeout(() => dismissSplash(false), 1600);
         return;
     }
 
-    masterTimeline = gsap.timeline({
-        onComplete: () => {
-            dismissIntro(false);
-        }
-    });
-
-    // Initial setup: ensure all acts are hidden
-    gsap.set([statementAct, heroAct, taglineAct], { opacity: 0 });
+    // Initial entrance setup
+    gsap.set(centerContent, { opacity: 0 });
+    gsap.set(monogramWrap, { scale: 0.85, opacity: 0 });
+    gsap.set(nameEl, { opacity: 0, y: 15, filter: 'blur(8px)' });
+    gsap.set(taglineEl, { opacity: 0, y: 8 });
+    gsap.set(progressContainer, { opacity: 0, y: 10 });
     gsap.set(skipBtn, { opacity: 0 });
-    gsap.set(chapterTag, { opacity: 0, y: -8 });
 
-    // Fade in subtle "SKIP INTRO →" button after 0.8s
-    masterTimeline.to(skipBtn, {
-        opacity: 0.75,
-        duration: 1.0,
-        ease: 'power1.out'
-    }, 0.8);
+    masterTimeline = gsap.timeline();
 
-    // === ACT 0 (0–2s): Atmospheric movie opening & Chapter Tag ===
-    masterTimeline.to(chapterTag, {
-        opacity: 0.75,
-        y: 0,
-        duration: 1.4,
-        ease: 'power2.out'
-    }, 0.4);
+    // 1. Reveal center elements with high-end refinement
+    masterTimeline.to(centerContent, { opacity: 1, duration: 0.25 }, 0)
+        .to(monogramWrap, { scale: 1, opacity: 1, duration: 0.6, ease: 'back.out(1.4)' }, 0.08)
+        .to(nameEl, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.55, ease: 'power3.out' }, 0.2)
+        .to(taglineEl, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, 0.35)
+        .to(progressContainer, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, 0.45)
+        .to(skipBtn, { opacity: 0.65, duration: 0.5, ease: 'power2.out' }, 0.65);
 
-    // === ACT 1 (2–4s): "EVERYTHING STARTS WITH AN IDEA" ===
-    const statementText = document.querySelector('.intro-statement-text');
-    masterTimeline.set(statementAct, { opacity: 1, pointerEvents: 'auto' }, 2.0);
+    // 2. Animate Circular Ring, Progress Bar & Counter (0% -> 100% in 1.5s)
+    const progressData = { val: 0 };
+    const circumference = 276.46;
 
-    masterTimeline.fromTo(statementText, 
-        {
-            opacity: 0,
-            filter: 'blur(12px)',
-            letterSpacing: '0.15em',
-            scale: 0.96
+    masterTimeline.to(progressData, {
+        val: 100,
+        duration: 1.5,
+        ease: 'power2.inOut',
+        onUpdate: () => {
+            const current = Math.round(progressData.val);
+            const formatted = current < 10 ? `0${current}` : `${current}`;
+            if (counterEl) counterEl.textContent = formatted;
+            if (progressBar) progressBar.style.width = `${current}%`;
+            if (circleBar) {
+                const offset = circumference - (current / 100) * circumference;
+                circleBar.style.strokeDashoffset = offset;
+            }
+            if (statusTextEl) {
+                if (current < 30) {
+                    statusTextEl.textContent = 'INITIALIZING EXPERIENCE...';
+                } else if (current < 65) {
+                    statusTextEl.textContent = 'LOADING ASSETS & PROJECTS...';
+                } else if (current < 90) {
+                    statusTextEl.textContent = 'PREPARING INTERFACE...';
+                } else {
+                    statusTextEl.textContent = 'SYSTEM READY • WELCOME';
+                }
+            }
         },
-        {
-            opacity: 1,
-            filter: 'blur(0px)',
-            letterSpacing: '0.30em',
-            scale: 1.02,
-            duration: 0.85,
-            ease: 'power2.out'
-        },
-        2.0
-    );
-
-    // Fade out Act 1 smoothly
-    masterTimeline.to(statementText, {
-        opacity: 0,
-        filter: 'blur(8px)',
-        scale: 1.05,
-        duration: 0.5,
-        ease: 'power2.in'
-    }, 3.5);
-
-    masterTimeline.set(statementAct, { opacity: 0, pointerEvents: 'none' }, 4.0);
-
-    // === ACT 2 (4–6s): "DEVEN RAJPUT" — The Hero Moment ===
-    const heroWrapper = document.querySelector('.intro-hero-wrapper');
-    const heroPretitle = document.querySelector('.intro-hero-pretitle');
-    const heroTitle = document.querySelector('.intro-hero-title');
-
-    masterTimeline.set(heroAct, { opacity: 1, pointerEvents: 'auto' }, 4.0);
-
-    // Camera slow push-in zoom on hero title
-    masterTimeline.fromTo(heroWrapper,
-        { scale: 0.94 },
-        { scale: 1.03, duration: 1.9, ease: 'sine.out' },
-        4.0
-    );
-
-    // Pretitle: A DIGITAL EXPERIENCE BY
-    masterTimeline.fromTo(heroPretitle,
-        { opacity: 0, y: -6 },
-        { opacity: 0.85, y: 0, duration: 0.7, ease: 'power2.out' },
-        4.05
-    );
-
-    // Hero title blur to focus (fast to crystal sharpness, held in spotlight)
-    masterTimeline.fromTo(heroTitle,
-        { opacity: 0, filter: 'blur(14px)' },
-        { opacity: 1, filter: 'blur(0px)', duration: 0.8, ease: 'power2.out' },
-        4.1
-    );
-
-    // Cinematic light sweep across "DEVEN RAJPUT"
-    if (titleShimmer) {
-        masterTimeline.fromTo(titleShimmer,
-            { backgroundPosition: '130% 0' },
-            { backgroundPosition: '-30% 0', duration: 1.7, ease: 'power1.inOut' },
-            4.15
-        );
-    }
-
-    // Gold accent line expands under title
-    if (heroDivider) {
-        masterTimeline.fromTo(heroDivider,
-            { width: '0px' },
-            { width: '120px', duration: 0.85, ease: 'power2.out' },
-            4.35
-        );
-    }
-
-    // Fade out Act 2 smoothly
-    masterTimeline.to(heroWrapper, {
-        opacity: 0,
-        filter: 'blur(8px)',
-        duration: 0.5,
-        ease: 'power2.in'
-    }, 5.5);
-
-    masterTimeline.set(heroAct, { opacity: 0, pointerEvents: 'none' }, 6.0);
-
-    // === ACT 3 (6–8s): The Taglines ===
-    const taglineWrapper = document.querySelector('.intro-tagline-wrapper');
-    const taglineHeadline = document.querySelector('.intro-tagline-headline');
-    const taglineSubheadline = document.querySelector('.intro-tagline-subheadline');
-
-    masterTimeline.set(taglineAct, { opacity: 1, pointerEvents: 'auto' }, 6.05);
-
-    // Gentle upward motion and blur-to-focus on main tagline
-    masterTimeline.fromTo(taglineHeadline,
-        { opacity: 0, y: 20, filter: 'blur(8px)' },
-        { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.85, ease: 'power2.out' },
-        6.1
-    );
-
-    // Subheadline: FULL STACK DEVELOPER • APP DEVELOPER • AI ENTHUSIAST
-    masterTimeline.fromTo(taglineSubheadline,
-        { opacity: 0, y: 14 },
-        { opacity: 0.92, y: 0, duration: 0.8, ease: 'power2.out' },
-        6.35
-    );
-
-    // Gentle camera drift
-    masterTimeline.fromTo(taglineWrapper,
-        { scale: 0.98 },
-        { scale: 1.015, duration: 1.85, ease: 'sine.out' },
-        6.1
-    );
-
-    // === AT 8.0s: Reveal Portfolio Homepage ===
-    // Timeline finishes at 8.0s and calls onComplete: dismissIntro()
+        onComplete: () => {
+            // Subtle flash of completed counter before curtain lifts
+            if (counterEl) {
+                gsap.to(counterEl, {
+                    color: '#ffffff',
+                    duration: 0.12,
+                    yoyo: true,
+                    repeat: 1,
+                    onComplete: () => {
+                        setTimeout(() => dismissSplash(false), 100);
+                    }
+                });
+            } else {
+                setTimeout(() => dismissSplash(false), 100);
+            }
+        }
+    }, 0.25);
 }
 
+let gsapAnimationsInitialized = false;
+
 function initGSAPAnimations() {
-    if (!window.gsap) return;
+    if (gsapAnimationsInitialized || !window.gsap) return;
+    gsapAnimationsInitialized = true;
 
     try {
         // Respect prefers-reduced-motion
