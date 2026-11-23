@@ -52,6 +52,8 @@ function initializePortfolio() {
         if (!themeButton) return;
         const isDarkMode = document.documentElement.classList.contains(darkTheme);
         themeButton.innerHTML = `<i data-lucide="${isDarkMode ? 'sun' : 'moon'}" class="w-4 h-4"></i>`;
+        themeButton.setAttribute('title', isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode');
+        themeButton.setAttribute('aria-label', isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode');
         try {
             if (window.lucide) lucide.createIcons();
         } catch(e) {}
@@ -59,11 +61,11 @@ function initializePortfolio() {
 
     const applyInitialTheme = () => {
         const savedTheme = localStorage.getItem('selected-theme');
-        // Default to clean light theme matching the mockup
-        if (savedTheme === darkTheme) {
-            document.documentElement.classList.add(darkTheme);
-        } else {
+        // Default to luxury dark theme unless user explicitly saved 'light'
+        if (savedTheme === 'light') {
             document.documentElement.classList.remove(darkTheme);
+        } else {
+            document.documentElement.classList.add(darkTheme);
         }
         updateThemeIcon();
     };
